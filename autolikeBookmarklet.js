@@ -42,49 +42,71 @@ javascript: setInterval(async function () {
     }, "");
   };
 
-  /* 「結構です」が出てたら押す */
-  const nothanks = document.getElementByXPath('//*[text()="結構です"]');
-  if (nothanks) {nothanks.click();}
+  try {
+    /* 「結構です」「後で」が出てたら押す */
+    const nothanks = document.getElementByXPath('//*[text()="結構です"]');
+    if (nothanks) {nothanks.click();}
+    const later = document.getElementByXPath('//*[text()="後で"]');
+    if (later) {later.click();}
 
-  /* プロフィール詳細を開く */
-  document.getElementByXPath('//span[text()="プロフィールを開く"]').click();
-  await sleep(1000);
+    /* プロフィール詳細を開く */
+    document.getElementByXPath('//span[text()="プロフィールを開く"]').click();
+    await sleep(1000);
 
-  /* 名前等の情報取得 */
-  let profileText = document.getElementByXPath('//hr[contains(@class, "divider-primary")][1]/following-sibling::div[1]');
-  let name = document.getElementByXPath('//h1');
-  let age = document.getElementByXPath('//span[contains(@aria-label, "歳")]');
-  let distance = document.getElementByXPath('//div[contains(text(), "km")]');
-  if (profileText) {
-    profileText = profileText.textContent; /* プロフィール詳細文字列の前処理 */
-    profileText = profileText.replaceAll("\n", "");
-    profileText = removeEmoji(profileText);
+    /* 名前等の情報取得 */
+    let profileText = document.getElementByXPath('//hr[contains(@class, "divider-primary")][1]/following-sibling::div[1]');
+    let name = document.getElementByXPath('//h1');
+    let age = document.getElementByXPath('//span[contains(@aria-label, "歳")]');
+    let distance = document.getElementByXPath('//div[contains(text(), "km")]');
+    let passportmode = document.getElementByXPath('//*[contains(text(), "パスポート")]');
+    let height = document.getElementByXPath('//div[@class="Row"]//*[contains(text(), "cm")]');
+    let bloodtype = document.getElementByXPath('//*[text()="血液型"]/..');
+    let smoking = document.getElementByXPath('//*[text()="煙草を吸う頻度は？"]/..');
+    let expression = document.getElementByXPath('//*[text()="愛の表現"]/..');
+    if (profileText) {
+      profileText = profileText.textContent; /* プロフィール詳細文字列の前処理 */
+      profileText = profileText.replaceAll("\n", "");
+      profileText = removeEmoji(profileText);
+    }
+    if (name) {name = name.textContent;}
+    if (age) {age = age.textContent;}
+    if (distance) {distance = distance.textContent;}
+    if (passportmode) {passportmode = true;} else {passportmode = false;}
+    if (height) {height = height.textContent;}
+    if (bloodtype) {bloodtype = bloodtype.textContent.replace('血液型', '');}
+    if (smoking) {smoking = smoking.textContent.replace('煙草を吸う頻度は？', '');}
+    if (expression) {expression = expression.textContent.replace('愛の表現', '');}
+    document.getElementByXPath('//span[text()="戻る"]/..').click();
+    await sleep(1000);
+
+    /*  プロフィール詳細文字列の英文判定 */
+    const likeElem = document.getElementByXPath('(//*[text()="Like"]/../../..)[2]');
+    const nopeElem = document.getElementByXPath('(//*[text()="Nope"]/../../..)[2]');
+    const regEnglish = /^[0-9\s\t\w“”!"#\$%&'’\(\)\*\+,-\./\:;<\=>\?\[\]\^`\{\|\}~]+$/;
+    let result = '';
+    if (regEnglish.test(profileText) || passportmode) {
+      nopeElem.click();
+      result = 'nope';
+    } else {
+      likeElem.click();
+      result = 'like';
+    }
+
+    /* 結果の表示 */
+    console.log('Datetime: ' + new Date().toLocaleString('ja'));
+    console.log('Name: ' + name);
+    console.log('Age: ' + age);
+    console.log('Height: ' + height);
+    console.log('Distance: ' + distance);
+    console.log('Passportmode: ' + passportmode);
+    console.log('Bloodtype: ' + bloodtype);
+    console.log('Smoking: ' + smoking);
+    console.log('Expression: ' + expression);
+    console.log('ProfileText: ' + profileText)
+    console.log('Result: ' + result)
+    console.log('\n');
+  } catch(e) {
+    console.error( e.message );
   }
-  if (name) {name = name.textContent;}
-  if (age) {age = age.textContent;}
-  if (distance) {distance = distance.textContent;}
-  document.getElementByXPath('//span[text()="戻る"]/..').click();
-  await sleep(1000);
 
-  /*  プロフィール詳細文字列の英文判定 */
-  const likeElem = document.getElementByXPath('(//*[text()="Like"]/../../..)[2]');
-  const nopeElem = document.getElementByXPath('(//*[text()="Nope"]/../../..)[2]');
-  const regEnglish = /^[0-9\s\t\w“”!"#\$%&'’\(\)\*\+,-\./\:;<\=>\?\[\]\^`\{\|\}~]+$/;
-  let result = '';
-  if (regEnglish.test(profileText)) {
-    nopeElem.click();
-    result = 'nope';
-  } else {
-    likeElem.click();
-    result = 'like';
-  }
-
-  /* 結果の表示 */
-  console.log('Name: ' + name);
-  console.log('Age: ' + age);
-  console.log('Distance: ' + distance);
-  console.log('ProfileText: ' + profileText);
-  console.log('Result: ' + result);
-  console.log('\n');
-
-}, 10e3);
+}, 20e3);
