@@ -58,6 +58,7 @@ javascript: setInterval(async function () {
     let name = document.getElementByXPath('//h1');
     let age = document.getElementByXPath('//span[contains(@aria-label, "歳")]');
     let distance = document.getElementByXPath('//div[contains(text(), "km")]');
+    let distance_num = 0;
     let passportmode = document.getElementByXPath('//*[contains(text(), "パスポート")]');
     let height = document.getElementByXPath('//div[@class="Row"]//*[contains(text(), "cm")]');
     let bloodtype = document.getElementByXPath('//*[text()="血液型"]/..');
@@ -70,7 +71,10 @@ javascript: setInterval(async function () {
     }
     if (name) {name = name.textContent;}
     if (age) {age = age.textContent;}
-    if (distance) {distance = distance.textContent;}
+    if (distance) {
+      distance = distance.textContent;
+      distance_num = parseInt(distance.match(/[0-9]+/)[0]);
+    }
     if (passportmode) {passportmode = true;} else {passportmode = false;}
     if (height) {height = height.textContent;}
     if (bloodtype) {bloodtype = bloodtype.textContent.replace('血液型', '');}
@@ -84,7 +88,7 @@ javascript: setInterval(async function () {
     const nopeElem = document.getElementByXPath('(//*[text()="Nope"]/../../..)[2]');
     const regEnglish = /^[0-9\s\t\w“”!"#\$%&'’\(\)\*\+,-\./\:;<\=>\?\[\]\^`\{\|\}~]+$/;
     let result = '';
-    if (regEnglish.test(profileText) || passportmode) {
+    if (regEnglish.test(profileText) || passportmode || (distance_num > 100)) {
       nopeElem.click();
       result = 'nope';
     } else {
