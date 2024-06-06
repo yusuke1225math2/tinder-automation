@@ -84,11 +84,25 @@ javascript: setInterval(async function () {
     await sleep(1000);
 
     /*  プロフィール詳細文字列の英文判定 */
-    const likeElem = document.getElementByXPath('(//*[text()="Like"]/../../..)[2]');
-    const nopeElem = document.getElementByXPath('(//*[text()="Nope"]/../../..)[2]');
+    const likeElem = document.getElementByXPath('//*[text()="Like"]/../../../../button[@draggable="false"]');
+    const nopeElem = document.getElementByXPath('//*[text()="Nope"]/../../../../button[@draggable="false"]');
     const regEnglish = /^[0-9\s\t\w“”!"#\$%&'’\(\)\*\+,-\./\:;<\=>\?\[\]\^`\{\|\}~]+$/;
     let result = '';
-    if (regEnglish.test(profileText) || passportmode || (distance_num > 100)) {
+
+    // 業者プロフィール弾く
+    const detect_bot_profile = (profileText) => {
+      is_bot = false;
+      if (profileText.includes(' ') || profileText.includes('-')) {
+        profileText = profileText.replace(/[\s-]/g, '');
+      }
+      if (/(ライン|らいん|せふれ|セフレ)/.test(profileText)) {
+        is_bot = true;
+      }
+      return is_bot;
+    };
+
+    // スワイプ処理
+    if (detect_bot_profile(profileText) || regEnglish.test(profileText) || passportmode || (distance_num > 100)) {
       nopeElem.click();
       result = 'nope';
     } else {

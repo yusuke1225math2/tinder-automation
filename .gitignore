@@ -1,0 +1,5 @@
+.venv/
+Cookies*
+*.pkl
+.mypy_cache/
+*.log
